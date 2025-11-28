@@ -1,4 +1,5 @@
 port: your port here
-output_directory: "./path/to/output/directory"
-google_cloud_project_id: "your-google-cloud-project-id"
-bucket_name: "your-gcs-bucket-name"
+gcs_bucket: "your gcs bucket here"
+gcs_credentials_file: "your-google-cloud-credentials-file.json"
+url_queue_buffer_size: "your-url-queue-buffer-size"
+playback_queue_buffer_size: "your-playback-queue-buffer-size"

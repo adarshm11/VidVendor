@@ -1,3 +1,11 @@
 package handlers
 
-// handles the queue of videos to stream by calling on service.go
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func GetStream(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "hello"})
+}
