@@ -1,0 +1,4 @@
+port: your port here
+output_directory: "./path/to/output/directory"
+google_cloud_project_id: "your-google-cloud-project-id"
+bucket_name: "your-gcs-bucket-name"
