@@ -12,30 +12,31 @@ import (
 	"VidVendor/models"
 )
 
+var cfg models.Config
+
 func LoadConfig(path string) (*models.Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var config models.Config
-	err = yaml.Unmarshal(data, &config)
+	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
 		return nil, err
 	}
-	return &config, nil
+	return &cfg, nil
 }
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "Path to the config file")
 	flag.Parse()
 
-	config, err := LoadConfig(*configPath)
+	cfg, err := LoadConfig(*configPath)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		return
 	}
 
-	_ = config // Use config as needed
+	_ = cfg // Use config as needed
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -45,9 +46,9 @@ func main() {
 	})
 
 	r.POST("/upload", func(c *gin.Context) {
-		handlers.UploadVideo(c, config.OutputDirectory)
+		handlers.UploadVideo(c, cfg)
 	})
 
-	fmt.Println("server running on port", config.Port)
-	r.Run(":" + config.Port)
+	fmt.Println("server running on port", cfg.Port)
+	r.Run(":" + cfg.Port)
 }

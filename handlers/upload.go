@@ -7,21 +7,23 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/kkdai/youtube/v2"
 
 	"VidVendor/models"
+	"VidVendor/storage"
 )
 
 var client = youtube.Client{}
 
-func UploadVideo(c *gin.Context, outputDir string) {
+func UploadVideo(c *gin.Context, cfg *models.Config) {
 	var req models.UploadVideoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	err := DownloadYoutubeVideo(req.VideoURL, req.OutputPath)
+	err := DownloadYoutubeVideo(req.VideoURL, cfg)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -29,7 +31,7 @@ func UploadVideo(c *gin.Context, outputDir string) {
 	c.JSON(200, gin.H{"message": "Video uploaded successfully"})
 }
 
-func DownloadYoutubeVideo(videoUrl, outputPath string) error {
+func DownloadYoutubeVideo(videoUrl string, cfg *models.Config) error {
 	video, err := client.GetVideo(videoUrl)
 	if err != nil {
 		return fmt.Errorf("failed to upload video: %v", err)
@@ -41,17 +43,28 @@ func DownloadYoutubeVideo(videoUrl, outputPath string) error {
 	}
 	defer stream.Close()
 
-	outFile, err := os.Create(outputPath)
-	if err != nil {
-		return fmt.Errorf("failed to create output file: %v", err)
-	}
-	defer outFile.Close()
+	// store the video file in cloud storage
+	videoId := uuid.New().String()
+	fmt.Printf("Downloading video ID: %s\n", videoId)
 
-	_, err = io.Copy(outFile, stream) // Save the stream to the output file
+	videoPath := videoId + ".mp4"
+	videoFile, err := os.Create(videoPath)
+	if err != nil {
+		return fmt.Errorf("failed to create video file: %v", err)
+	}
+	defer videoFile.Close()
+	defer os.Remove(videoPath)
+
+	_, err = io.Copy(videoFile, stream)
 	if err != nil {
 		return fmt.Errorf("failed to save video stream: %v", err)
 	}
 
-	fmt.Printf("Video uploaded successfully: %s\n", video.ID)
+	err = storage.UploadToGCS(videoPath, cfg)
+	if err != nil {
+		return fmt.Errorf("failed to upload to cloud storage: %v", err)
+	}
+
+	fmt.Printf("Video %s downloaded successfully\n", videoId)
 	return nil
 }
