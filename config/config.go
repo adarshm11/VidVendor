@@ -9,8 +9,10 @@ import (
 
 type Config struct {
 	Port                    string `yaml:"port"`
+	OutputDirectory         string `yaml:"output_directory"`
 	URLQueueBufferSize      int    `yaml:"url_queue_buffer_size"`
 	PlaybackQueueBufferSize int    `yaml:"playback_queue_buffer_size"`
+	DeleteQueueBufferSize   int    `yaml:"delete_queue_buffer_size"`
 }
 
 func Load(path string) (*Config, error) {

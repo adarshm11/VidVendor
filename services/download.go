@@ -1,19 +1,19 @@
 package services
 
 import (
-	"VidVendor/config"
-	"VidVendor/utils"
-
 	"io"
 	"log"
 	"os"
 
 	"github.com/kkdai/youtube/v2"
+
+	"VidVendor/utils"
 )
 
 var client = youtube.Client{}
 
-func DownloadVideo(cfg *config.Config) error {
+// DownloadVideo is a goroutine that listens on the URLQueue channel for video URLs to download
+func DownloadVideo() error {
 	for {
 		url, ok := <-URLQueue
 		if !ok {
@@ -22,7 +22,7 @@ func DownloadVideo(cfg *config.Config) error {
 		}
 		video, err := client.GetVideo(url)
 		if err != nil {
-			log.Printf("Failed to upload video: %v", err)
+			log.Printf("Failed to get video: %v", err)
 			continue
 		}
 		formats := video.Formats.WithAudioChannels() // get only formats with audio
