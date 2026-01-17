@@ -51,18 +51,8 @@ func DownloadVideo(cfg *config.Config) error {
 			continue
 		}
 
-		// TODO: Upload the video to Google Cloud Storage
-		err = UploadToGCS(cfg)
-		if err != nil {
-			log.Printf("Failed to upload video to GCS: %v", err)
-			os.Remove(videoPath)
-			continue
-		}
-
-		os.Remove(videoPath)
-
 		PlaybackQueue <- videoId
 
-		log.Printf("Video %s downloaded and uploaded successfully\n", videoId)
+		log.Printf("Video %s downloaded successfully\n", videoId)
 	}
 }

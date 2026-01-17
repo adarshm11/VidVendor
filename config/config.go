@@ -9,8 +9,6 @@ import (
 
 type Config struct {
 	Port                    string `yaml:"port"`
-	GCSBucket               string `yaml:"gcs_bucket"`
-	GCSCredentialsFile      string `yaml:"gcs_credentials_file"`
 	URLQueueBufferSize      int    `yaml:"url_queue_buffer_size"`
 	PlaybackQueueBufferSize int    `yaml:"playback_queue_buffer_size"`
 }

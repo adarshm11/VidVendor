@@ -1,5 +1,2 @@
 port: your port here
-gcs_bucket: "your gcs bucket here"
-gcs_credentials_file: "your-google-cloud-credentials-file.json"
-url_queue_buffer_size: "your-url-queue-buffer-size"
-playback_queue_buffer_size: "your-playback-queue-buffer-size"
+output_directory: "./videos"
