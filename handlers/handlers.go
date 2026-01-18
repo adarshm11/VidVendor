@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"VidVendor/config"
@@ -13,13 +14,16 @@ func UploadVideoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
 		return
 	}
-	url := r.FormValue("url")
-	if url == "" {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	var requestBody struct {
+		URL string `json:"url"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
 	// just add the URL to the queue -> the goroutine will download the video and generate UUID asynchronously
-	if err := services.AddVideoURL(url); err != nil {
+	if err := services.AddVideoURL(requestBody.URL); err != nil {
 		http.Error(w, "Failed to add video URL", http.StatusInternalServerError)
 		return
 	}
@@ -31,6 +35,7 @@ func GetNextVideoHandler(w http.ResponseWriter, r *http.Request) {
 	videoPath := config.GetConfig().OutputDirectory + "/" + nextVideoUUID + ".mp4"
 	w.Header().Set("Content-Type", "application/mp4")
 	http.ServeFile(w, r, videoPath)
+	services.ScheduleVideoForDeletion(nextVideoUUID)
 }
 
 func StopStreamHandler(w http.ResponseWriter, r *http.Request) {

@@ -45,6 +45,10 @@ func VideoCleanup(cfg *config.Config, sigchan chan os.Signal) {
 
 }
 
+func ScheduleVideoForDeletion(uuid string) {
+	DeletionQueue <- uuid
+}
+
 // Empties the PlaybackQueue and schedules all videos for deletion
 func EndStream() {
 	for len(PlaybackQueue) > 0 {
