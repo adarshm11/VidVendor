@@ -39,9 +39,8 @@ func DownloadVideo(cfg *config.Config, sigchan chan os.Signal) error {
 			}
 			defer stream.Close()
 
+			// create the video file
 			videoId := utils.GenerateUUID()
-			log.Printf("Downloading video ID: %s\n", videoId)
-
 			videoPath := cfg.OutputDirectory + "/" + videoId + ".mp4"
 			videoFile, err := os.Create(videoPath)
 			if err != nil {
@@ -50,6 +49,7 @@ func DownloadVideo(cfg *config.Config, sigchan chan os.Signal) error {
 			}
 			defer videoFile.Close()
 
+			// save the video stream to the file
 			_, err = io.Copy(videoFile, stream)
 			if err != nil {
 				log.Printf("Failed to save video stream: %v", err)
@@ -58,7 +58,6 @@ func DownloadVideo(cfg *config.Config, sigchan chan os.Signal) error {
 			}
 
 			PlaybackQueue <- videoId
-
 			log.Printf("Video %s downloaded successfully\n", videoId)
 		}
 	}
