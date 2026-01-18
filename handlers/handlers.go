@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"VidVendor/config"
 	"VidVendor/models"
 	"VidVendor/services"
 )
@@ -29,8 +30,9 @@ func UploadVideoHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetNextVideoHandler(w http.ResponseWriter, r *http.Request) {
 	nextVideoUUID := services.GetNextVideo()
-	// now we need to grab the video file from the UUID and serve it
-	_ = nextVideoUUID
+	videoPath := config.GetConfig().OutputDirectory + "/" + nextVideoUUID + ".mp4"
+	w.Header().Set("Content-Type", "application/mp4")
+	http.ServeFile(w, r, videoPath)
 }
 
 func StopStreamHandler(w http.ResponseWriter, r *http.Request) {

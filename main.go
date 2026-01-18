@@ -43,6 +43,7 @@ func main() {
 	log.Println("server running on port", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
 		log.Fatalf("Error starting server: %v\n", err)
-		sigchan <- os.Kill
+		services.EndStream()
+		sigchan <- os.Interrupt
 	}
 }
