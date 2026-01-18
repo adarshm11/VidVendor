@@ -13,7 +13,7 @@ import (
 
 var client = youtube.Client{}
 
-// DownloadVideo is a goroutine that listens on the URLQueue channel for video URLs to download
+// Extracts URLs to be downloaded from the URLQueue, downloads the videos, saves them with a generated UUID, and adds the UUID to the PlaybackQueue
 func DownloadVideo(cfg *config.Config, sigchan chan os.Signal) error {
 	for {
 		select {

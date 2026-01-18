@@ -34,6 +34,8 @@ func main() {
 	r.HandleFunc("/next", handlers.GetNextVideoHandler)
 	r.HandleFunc("/stop", handlers.StopStreamHandler)
 
+	services.InitQueues(cfg)
+
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
 
@@ -45,5 +47,8 @@ func main() {
 		log.Fatalf("Error starting server: %v\n", err)
 		services.EndStream()
 		sigchan <- os.Interrupt
+		close(services.DeletionQueue)
+		close(services.PlaybackQueue)
+		close(services.URLQueue)
 	}
 }

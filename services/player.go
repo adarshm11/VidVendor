@@ -7,13 +7,14 @@ import (
 	"VidVendor/config"
 )
 
+// Adds a new URL to the URLQueue to be downloaded
 func AddVideoURL(url string) error {
 	URLQueue <- url
 	log.Printf("Video URL added to queue: %s", url)
 	return nil
 }
 
-// Called when the user skips the current video or the current video ends
+// Retrieves the UUID of the next video to be played from the PlaybackQueue
 func GetNextVideo() string {
 	uuid, ok := <-PlaybackQueue
 	if !ok {
