@@ -19,21 +19,18 @@ func UploadVideoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	uuid, err := services.AddVideoURL(req.URL)
-	if err != nil {
+	// just add the URL to the queue -> the goroutine will download the video and generate UUID asynchronously
+	if err := services.AddVideoURL(req.URL); err != nil {
 		http.Error(w, "Failed to add video URL", http.StatusInternalServerError)
-		return
-	}
-	err = services.EnqueueVideo(uuid)
-	if err != nil {
-		http.Error(w, "Failed to enqueue video", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
 
 func GetNextVideoHandler(w http.ResponseWriter, r *http.Request) {
-
+	nextVideoUUID := services.GetNextVideo()
+	// now we need to grab the video file from the UUID and serve it
+	_ = nextVideoUUID
 }
 
 func StopStreamHandler(w http.ResponseWriter, r *http.Request) {

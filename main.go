@@ -4,9 +4,13 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"VidVendor/config"
 	"VidVendor/handlers"
+	"VidVendor/services"
 )
 
 func main() {
@@ -17,8 +21,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config: %v\n", err)
 	}
-
-	_ = cfg // Use config as needed
 
 	r := http.NewServeMux()
 
@@ -32,8 +34,15 @@ func main() {
 	r.HandleFunc("/next", handlers.GetNextVideoHandler)
 	r.HandleFunc("/stop", handlers.StopStreamHandler)
 
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
+
+	go services.DownloadVideo(cfg, sigchan)
+	go services.VideoCleanup(cfg, sigchan)
+
 	log.Println("server running on port", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, r); err != nil {
 		log.Fatalf("Error starting server: %v\n", err)
+		sigchan <- os.Kill
 	}
 }
